@@ -22,6 +22,7 @@ import com.backend.bookstore.security.JwtFilter;
 import com.backend.bookstore.security.JwtUtil;
 import com.backend.bookstore.services.UserService;
 import com.backend.bookstore.utils.BookstoreUtil;
+import com.backend.bookstore.utils.EmailUtil;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -43,6 +44,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     JwtFilter jwtFilter;
+
+    @Autowired
+    EmailUtil emailUtil;
 
     @Override
     public ResponseEntity<String> signUp(Map<String, String> requestMap) {
@@ -128,7 +132,7 @@ public class UserServiceImpl implements UserService {
                 Optional<User> optional = userRepository.findById(Integer.parseInt(requestMap.get("id")));
                 if (!optional.isEmpty()) {
                     userRepository.updateStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
-                    
+                    sendMailToAllAdmin(requestMap.get("status"), optional.get().getEmail(), userRepository.getAllAdmin());
                     return BookstoreUtil.getResponseEntity("User Status Updated Successfully", HttpStatus.OK);
                 } else {
                     return BookstoreUtil.getResponseEntity("User Id Does Not exist", HttpStatus.OK);
@@ -136,6 +140,39 @@ public class UserServiceImpl implements UserService {
             } else {
                 return BookstoreUtil.getResponseEntity("Unauthorized Access", HttpStatus.UNAUTHORIZED);
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private void sendMailToAllAdmin(String status, String user, List<String> allAdmin) {
+       allAdmin.remove(jwtFilter.getCurrentUser());
+       if(status!=null&status.equalsIgnoreCase("true")){
+            emailUtil.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Approved", "USER:- "+user+" \n is approved by \nADMIN:- "+jwtFilter.getCurrentUser(), allAdmin);
+       } else {
+        emailUtil.sendSimpleMessage(jwtFilter.getCurrentUser(), "Account Disabled", "USER:- "+user+" \n is disabled by \nADMIN:- "+jwtFilter.getCurrentUser(), allAdmin);
+       }
+    }
+
+    @Override
+    public ResponseEntity<String> checkToken() {
+        return BookstoreUtil.getResponseEntity("true", HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<String> changePassword(Map<String, String> request) {
+        try {
+            User thisUser = userRepository.findByEmail(jwtFilter.getCurrentUser());
+            if(!thisUser.equals(null)){
+                if(thisUser.getPassword().equals(request.get("oldPassword"))){
+                    thisUser.setPassword(request.get("newPassword"));
+                    userRepository.save(thisUser);
+                    return BookstoreUtil.getResponseEntity("Password Updated Successfully", HttpStatus.OK);
+                }
+                return BookstoreUtil.getResponseEntity("Incorrect Old Password", HttpStatus.BAD_REQUEST);
+            }
+            return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

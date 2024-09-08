@@ -59,5 +59,25 @@ public class UserMapperImpl implements UserMapper {
         }
         return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @Override
+    public ResponseEntity<String> checkToken() {
+        try {
+            return userService.checkToken();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> changePassword(Map<String, String> request) {
+        try {
+            return userService.changePassword(request);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
     
 }
