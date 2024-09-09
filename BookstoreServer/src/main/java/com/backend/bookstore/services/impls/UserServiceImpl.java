@@ -23,6 +23,7 @@ import com.backend.bookstore.security.JwtUtil;
 import com.backend.bookstore.services.UserService;
 import com.backend.bookstore.utils.BookstoreUtil;
 import com.backend.bookstore.utils.EmailUtil;
+import com.google.common.base.Strings;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -173,6 +174,20 @@ public class UserServiceImpl implements UserService {
                 return BookstoreUtil.getResponseEntity("Incorrect Old Password", HttpStatus.BAD_REQUEST);
             }
             return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<String> forgotPassword(Map<String, String> request) {
+        try {
+            User user = userRepository.findByEmail(request.get("email"));
+            if(!Objects.isNull(user)&&!Strings.isNullOrEmpty(user.getEmail())){
+                emailUtil.forgotMail(user.getEmail(), "Credentials by Bookstore Management System", user.getPassword());
+            }
+            return BookstoreUtil.getResponseEntity("Check Your Mail For Credentials.", HttpStatus.OK);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

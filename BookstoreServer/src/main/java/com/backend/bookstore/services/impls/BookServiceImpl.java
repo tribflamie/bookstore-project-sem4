@@ -11,7 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.backend.bookstore.dtos.BookDto;
-import com.backend.bookstore.models.Author;
 import com.backend.bookstore.models.Book;
 import com.backend.bookstore.models.Category;
 import com.backend.bookstore.repositories.BookRepository;
@@ -63,8 +62,6 @@ public class BookServiceImpl implements BookService {
     private Book getBookFromMap(Map<String, String> requestMap, Boolean isAdd) {
         Category category = new Category();
         category.setId(Integer.parseInt(requestMap.get("categoryId")));
-        Author author = new Author();
-        author.setId(Integer.parseInt(requestMap.get("authorId")));
 
         Book book = new Book();
         if (isAdd) {
@@ -74,7 +71,7 @@ public class BookServiceImpl implements BookService {
         }
 
         book.setCategory(category);
-        book.setAuthor(author);
+        book.setAuthor(requestMap.get("author"));
         book.setName(requestMap.get("name"));
         book.setPrice(Double.parseDouble(requestMap.get("price")));
         book.setDescription(requestMap.get("description"));

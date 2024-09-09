@@ -18,7 +18,7 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.Data;
 
-@NamedQuery(name="Book.getAllBook", query = "select new com.backend.bookstore.dtos.BookDto(p.id,p.name,p.description,p.price,p.status,p.category.id,p.category.name,p.author.id,p.author.name) from Book p")
+@NamedQuery(name="Book.getAllBook", query = "select new com.backend.bookstore.dtos.BookDto(p.id,p.name,p.author,p.description,p.price,p.status,p.category.id,p.category.name) from Book p")
 
 
 @Data
@@ -41,9 +41,8 @@ public class Book implements Serializable{
     @JoinColumn(name = "category_fk", nullable = false)
     private Category category;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "author_fk", nullable = false)
-    private Author author;
+    @Column(name = "author")
+    private String author;
 
     @Column(name = "description")
     private String description;

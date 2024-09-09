@@ -31,4 +31,7 @@ public interface UserMapper {
 
     @PostMapping(path="/changePassword")
     ResponseEntity<String> changePassword(@RequestBody Map<String, String> request);
+
+    @PostMapping(path="/forgotPassword")
+    ResponseEntity<String> forgotPassword(@RequestBody Map<String, String> request);
 }
