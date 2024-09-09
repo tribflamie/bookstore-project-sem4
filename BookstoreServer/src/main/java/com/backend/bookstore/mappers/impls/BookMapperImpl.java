@@ -60,6 +60,36 @@ public class BookMapperImpl implements BookMapper{
         return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @Override
+    public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
+        try {
+            return bookService.updateStatus(requestMap);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<BookDto>> getBookByCategoryId(Integer id) {
+        try {
+            return bookService.getBookByCategoryId(id);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<BookDto>> getBookById(Integer id) {
+        try {
+            return bookService.getBookById(id);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 
     
 }

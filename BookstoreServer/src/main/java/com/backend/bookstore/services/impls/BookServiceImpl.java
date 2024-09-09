@@ -136,4 +136,44 @@ public class BookServiceImpl implements BookService {
         return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
+    @SuppressWarnings("rawtypes")
+    @Override
+    public ResponseEntity<String> updateStatus(Map<String, String> requestMap) {
+        try {
+            if(jwtFilter.isAdmin()){
+                Optional optional = bookRepository.findById(Integer.parseInt(requestMap.get("id")));
+                if(!optional.isEmpty()){
+                    bookRepository.updateBookStatus(requestMap.get("status"), Integer.parseInt(requestMap.get("id")));
+                    return BookstoreUtil.getResponseEntity("Product Status Updated Successfully", HttpStatus.OK);
+                }
+                return BookstoreUtil.getResponseEntity("Book Id Does Not exist", HttpStatus.OK);
+            } else {
+                return BookstoreUtil.getResponseEntity("Unauthorized Access", HttpStatus.UNAUTHORIZED);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<BookDto>> getBookByCategoryId(Integer id) {
+        try {
+            return new ResponseEntity<>(bookRepository.getBookByCategoryId(id), HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @Override
+    public ResponseEntity<List<BookDto>> getBookById(Integer id) {
+        try {
+            return new ResponseEntity<>(bookRepository.getBookById(id), HttpStatus.OK);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ResponseEntity<>(new ArrayList<>(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

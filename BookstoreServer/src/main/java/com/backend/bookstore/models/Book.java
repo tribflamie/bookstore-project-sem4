@@ -18,8 +18,10 @@ import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.Data;
 
-@NamedQuery(name="Book.getAllBook", query = "select new com.backend.bookstore.dtos.BookDto(p.id,p.name,p.author,p.description,p.price,p.status,p.category.id,p.category.name) from Book p")
-
+@NamedQuery(name="Book.getAllBook", query = "select new com.backend.bookstore.dtos.BookDto(p.id, p.name, p.author, p.description, p.price, p.status, p.category.id, p.category.name) from Book p")
+@NamedQuery(name="Book.updateBookStatus", query = "update Book p set p.status=:status where p.id=:id")
+@NamedQuery(name="Book.getBookByCategoryId", query = "select new com.backend.bookstore.dtos.BookDto(p.id,p.name) from Book p where p.category.id=:id and p.status='true'")
+@NamedQuery(name="Book.getBookById", query="select new com.backend.bookstore.dtos.BookDto(p.id, p.name, p.author, p.description, p.price) from Book p where p.id=:id")
 
 @Data
 @Entity

@@ -14,14 +14,23 @@ import com.backend.bookstore.dtos.BookDto;
 @RequestMapping(path="/book")
 public interface BookMapper {
     @PostMapping(path="/add")
-    ResponseEntity<String> addNewBook(@RequestBody(required = true) Map<String, String> requestMap);
+    ResponseEntity<String> addNewBook(@RequestBody Map<String, String> requestMap);
 
     @GetMapping(path="/get")
     ResponseEntity<List<BookDto>> getAllBook();
 
     @PostMapping(path="/update")
-    ResponseEntity<String> updateBook(@RequestBody(required = true) Map<String, String> requestMap);
+    ResponseEntity<String> updateBook(@RequestBody Map<String, String> requestMap);
 
     @PostMapping(path="/delete/{id}")
-    ResponseEntity<String> deleteBook(@PathVariable(required = true) Integer id);
+    ResponseEntity<String> deleteBook(@PathVariable Integer id);
+
+    @PostMapping(path="/updateStatus")
+    ResponseEntity<String> updateStatus(@RequestBody Map<String, String> requestMap);
+
+    @GetMapping(path="/getBookByCategoryId/{id}")
+    ResponseEntity<List<BookDto>> getBookByCategoryId(@PathVariable Integer id);
+
+    @GetMapping(path="/getBookById/{id}")
+    ResponseEntity<List<BookDto>> getBookById(@PathVariable Integer id);
 }
