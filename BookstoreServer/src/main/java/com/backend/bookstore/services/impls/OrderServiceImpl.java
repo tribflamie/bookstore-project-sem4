@@ -1,9 +1,16 @@
 package com.backend.bookstore.services.impls;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
+import org.apache.pdfbox.io.IOUtils;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -59,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
                         + "Payment Method: " + requestMap.get("paymentMethod");
 
                 Document document = new Document();
-                PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\bumga\\Downloads\\bookstore-project-sem4\\BookstoreServer\\src\\main\\resources\\pdf" + "\\" + fileName + ".pdf"));
+                PdfWriter.getInstance(document, new FileOutputStream("C:\\Users\\bumga\\Downloads\\bookstore-project-sem4\\BookstoreServer\\src\\main\\resources\\files" + "\\" + fileName + ".pdf"));
 
                 document.open();
                 setRectangleInPdf(document);
@@ -166,6 +173,64 @@ public class OrderServiceImpl implements OrderService {
     private boolean validateRequestMap(Map<String, Object> requestMap) {
         return requestMap.containsKey("name") && requestMap.containsKey("contactNumber") && requestMap.containsKey("email")
                 && requestMap.containsKey("paymentMethod") && requestMap.containsKey("bookDetails")&& requestMap.containsKey("totalAmount");
+    }
+
+    @Override
+    public ResponseEntity<List<Order>> getOrder() {
+       List<Order> list = new ArrayList<>();
+        if(jwtFilter.isAdmin()) {
+            list = orderRepository.getAllOrder();
+        } else {
+            list = orderRepository.getOrderByUserName(jwtFilter.getCurrentUser());
+        }
+        return new ResponseEntity<>(list, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<byte[]> getPdf(Map<String, Object> requestMap) {
+        log.info("Inside getPdf: requestMap {}", requestMap);
+        try {
+            byte[] byteArray = new byte[0];
+            if(!requestMap.containsKey("uuid") && validateRequestMap(requestMap))
+                return new ResponseEntity<>(byteArray, HttpStatus.BAD_REQUEST);
+            String filePath = "C:\\Users\\bumga\\Downloads\\bookstore-project-sem4\\BookstoreServer\\src\\main\\resources\\files"+"\\"+(String) requestMap.get("uuid") + ".pdf";
+            if(BookstoreUtil.isFileExist(filePath)){
+                byteArray = getByteArray(filePath);
+                return new ResponseEntity<>(byteArray, HttpStatus.OK);
+            } else {
+                requestMap.put("isGenerate", false);
+                generateReport(requestMap);
+                byteArray = getByteArray(filePath);
+                return new ResponseEntity<>(byteArray, HttpStatus.OK);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
+    }
+
+    private byte[] getByteArray(String filePath) throws Exception {
+        File initialFile = new File(filePath);
+        InputStream targetStream = new FileInputStream(initialFile);
+        byte[] byteArray = IOUtils.toByteArray(targetStream);
+        targetStream.close();
+        return byteArray;
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public ResponseEntity<String> deleteOrder(Integer id) {
+       try {
+            Optional optional = orderRepository.findById(id);
+            if(optional.isPresent()) {
+                orderRepository.deleteById(id);
+                return BookstoreUtil.getResponseEntity("Order deleted Successfully", HttpStatus.OK);
+            }
+            return BookstoreUtil.getResponseEntity("Order id does not exist", HttpStatus.OK);
+       } catch (Exception ex) {
+            ex.printStackTrace();
+       }
+        return BookstoreUtil.getResponseEntity("Something Went Wrong", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

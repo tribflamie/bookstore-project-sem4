@@ -7,12 +7,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
 import lombok.Data;
+
+@NamedQuery(name="Order.getAllOrder", query = "select b from Order b order by b.id desc")
+@NamedQuery(name="Order.getOrderByUserName", query = "select b from Order b where b.createdBy=:username order by b.id desc")
 
 @Data
 @Entity
